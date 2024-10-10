@@ -1,45 +1,43 @@
+// then, catch, finally 핸들러
+
 class seokheePromise {
   constructor(work) {
     this.state = "pending";
-    this.returnValue = undefined;
-    this.callback = null;
+    this.returnV = undefined;
+    this.done = false;
 
-    try {
-      work(this.resolve, this.reject); // Cannot read properties of undefined (reading 'state')
-    } catch (error) {
-      this.reject(error);
-    }
+    work(this.resolve, this.reject);
   }
 
   resolve = function (value) {
-    console.log("resolve중");
-    //pending상태에서 한번만 변경되도록 조건문 추가
-    if (this.state === "pending") {
-      this.state = "fulfilled";
-      this.returnValue = value;
-    }
-    console.log(this.state);
-  }.bind(this); // bind 안해주면 this가 전역을 참조
+    if (this.done) return;
+    this.done = true;
+    this.state = "fulfilled";
+    this.returnV = value;
+  }.bind(this);
 
   reject = function (error) {
-    console.log("reject중");
-    if (this.state === "pending") {
-      this.state = "rejected";
-      this.returnValue = error;
-    }
-    console.log(this.state);
+    if (this.done) return;
+    this.done = true;
+    this.state = "rejected";
+    this.returnV = error;
   }.bind(this);
 
   then(callback) {
-    callback(this.returnValue);
+    callback(this.returnV);
   }
 }
 
 const promise1 = new seokheePromise(function (resolve, reject) {
   //resolve 또는 reject중 한개가 나오면 그대로 해당 Promise는 끝나게
-  resolve("성공!");
+  setTimeout(() => {
+    resolve(console.log("결과드가자"));
+  }, 1000);
+
   reject("실패!");
 });
+
+console.log(promise1); // 여기에서 pending이 나오도록 설계하면 좋을 듯.
 
 promise1.then(function (result) {
   console.log("Promise 결과:", result); // "성공!"이 출력됨
