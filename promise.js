@@ -2,7 +2,7 @@
 
 class seokheePromise {
   constructor(work) {
-    this.state = "pending";
+    this.PromiseStatus = "pending";
     this.result = undefined;
     this.callback = [];
     this.errcallback = []; //callback공유하면.. 덮어써버리게 됨
@@ -11,16 +11,16 @@ class seokheePromise {
   }
 
   resolve = function (value) {
-    if (this.state === "pending") {
-      this.state = "fulfilled";
+    if (this.PromiseStatus === "pending") {
+      this.PromiseStatus = "fulfilled";
       this.result = value;
       this.callback.forEach((f) => f(this.result));
     }
   }.bind(this);
 
   reject = function (error) {
-    if (this.state === "pending") {
-      this.state = "rejected";
+    if (this.PromiseStatus === "pending") {
+      this.PromiseStatus = "rejected";
       this.result = error;
       this.errcallback.forEach((f) => f(this.result));
     }
@@ -31,17 +31,22 @@ class seokheePromise {
     console.log("zz", this);
     return this;
   }
-
   catch(callback) {
     this.errcallback.push(callback);
     console.log("zz", this);
     return this;
   }
+  finally(callback) {
+    this.callback.push(callback);
+    this.errcallback.push(callback);
+  }
 }
 
 const promise1 = new seokheePromise(function (resolve, reject) {
+  // resolve("성공!");
   try {
     setTimeout(() => {
+      // throw new Error("으악!");
       resolve("성공!");
     }, 0);
   } catch {
@@ -52,11 +57,12 @@ const promise1 = new seokheePromise(function (resolve, reject) {
 console.log(promise1); // 여기에서 pending이 나오도록
 
 promise1
+  .catch((result) => console.log(promise1, `\n`, "Promise 실패:", result))
   .then((result) => {
     console.log(promise1, `\n`, "Promise 성공:", result);
   })
-  .catch((result) => console.log(promise1, `\n`, "Promise 실패:", result))
-  .then((result) => console.log(promise1, `\n`, "체인", result));
+  .then((result) => console.log(promise1, `\n`, "체인", result))
+  .finally((result) => console.log(promise1, `\n`, "정리합니다", result));
 
 /*
  * arrow function 없이 this 바인딩 해주기
