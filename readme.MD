@@ -1,5 +1,10 @@
 [기록]
 
+2024-10-11
+To do
+Error Throw시에 catch에서 받을 수 있도록
+resolve호출시 그 하위의 에러같은 것은 전부 무시되도록 (Error, catch 등등 무시해야함)
+
 1. resolve = function (value){ --- } 안의 state == pending 조건문
 
 const promise1 = new seokheePromise(function (resolve, reject) {

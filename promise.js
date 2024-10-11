@@ -46,7 +46,7 @@ const promise1 = new seokheePromise(function (resolve, reject) {
   // resolve("성공!");
   try {
     setTimeout(() => {
-      // throw new Error("으악!");
+      throw new Error("으악!");
       resolve("성공!");
     }, 0);
   } catch {
