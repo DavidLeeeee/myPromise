@@ -68,6 +68,10 @@ promise1
  * arrow function 없이 this 바인딩 해주기
  * then, catch 등을 체이닝 => Promise를 반환해야 함
  *
+ * [개선사항]
+ * 체이닝에 있어, status의 변경이 먼저인지 확인해보기 (현재는 pending으로 처리하기에 모든 것이 잡히는 중)
+ * finally는 추후 따로 독자적인 힘
  *
- * ㅁ
+ * [추가희망]
+ * Primise.all
  */
