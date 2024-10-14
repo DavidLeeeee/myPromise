@@ -6,6 +6,7 @@ class seokheePromise {
     this.result = undefined;
     this.callback = [];
     this.errcallback = []; //callback공유하면.. 덮어써버리게 됨
+    this.finallyCallback = [];
 
     work(this.resolve, this.reject);
   }
@@ -14,7 +15,7 @@ class seokheePromise {
     if (this.PromiseStatus === "pending") {
       this.PromiseStatus = "fulfilled";
       this.result = value;
-      this.callback.forEach((f) => f(this.result));
+      this.callback.forEach((func) => func(this.result));
     }
   }.bind(this);
 
@@ -22,35 +23,54 @@ class seokheePromise {
     if (this.PromiseStatus === "pending") {
       this.PromiseStatus = "rejected";
       this.result = error;
-      this.errcallback.forEach((f) => f(this.result));
+      this.errcallback.forEach((func) => func(this.result));
     }
   }.bind(this);
 
   then(callback) {
+    if (this.PromiseStatus === "fulfilled") {
+      callback(this.result);
+      return this;
+    }
     this.callback.push(callback);
-    console.log("zz", this);
+
     return this;
   }
-  catch(callback) {
-    this.errcallback.push(callback);
-    console.log("zz", this);
+
+  catch(errcallback) {
+    if (this.PromiseStatus === "rejected") {
+      errcallback(this.result);
+      return this;
+    }
+    this.errcallback.push(errcallback);
+
     return this;
   }
-  finally(callback) {
-    this.callback.push(callback);
-    this.errcallback.push(callback);
+
+  finally(finallyCallback) {
+    this.finallyCallback.push(finallyCallback);
+    finallyCallback();
+    return this;
   }
 }
 
 const promise1 = new seokheePromise(function (resolve, reject) {
   // resolve("성공!");
-  try {
-    setTimeout(() => {
-      // throw new Error("으악!");
-      resolve("성공!");
-    }, 0);
-  } catch {
-    reject("실패");
+  // try {
+  //   setTimeout(() => {
+  //     // throw new Error("으악!");
+  //     resolve("성공!");
+  //   }, 100);
+  // } catch {
+  //   reject("실패");
+  // }
+
+  let a = 3;
+
+  if (a == 3) {
+    resolve("success");
+  } else {
+    reject("failed");
   }
 });
 
@@ -61,8 +81,8 @@ promise1
     console.log(promise1, `\n`, "Promise 성공:", result);
   })
   .catch((result) => console.log(promise1, `\n`, "Promise 실패:", result))
-  .then((result) => console.log(promise1, `\n`, "체인", result))
-  .finally((result) => console.log(promise1, `\n`, "정리합니다", result));
+  .then((result) => console.log(promise1, `\n`, "Promise 체인", result))
+  .finally(() => console.log(promise1, `\n`, promise1.a));
 
 /*
  * arrow function 없이 this 바인딩 해주기
