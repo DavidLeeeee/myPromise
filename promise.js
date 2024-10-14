@@ -46,7 +46,7 @@ const promise1 = new seokheePromise(function (resolve, reject) {
   // resolve("성공!");
   try {
     setTimeout(() => {
-      throw new Error("으악!");
+      // throw new Error("으악!");
       resolve("성공!");
     }, 0);
   } catch {
@@ -57,10 +57,10 @@ const promise1 = new seokheePromise(function (resolve, reject) {
 console.log(promise1); // 여기에서 pending이 나오도록
 
 promise1
-  .catch((result) => console.log(promise1, `\n`, "Promise 실패:", result))
   .then((result) => {
     console.log(promise1, `\n`, "Promise 성공:", result);
   })
+  .catch((result) => console.log(promise1, `\n`, "Promise 실패:", result))
   .then((result) => console.log(promise1, `\n`, "체인", result))
   .finally((result) => console.log(promise1, `\n`, "정리합니다", result));
 
