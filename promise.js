@@ -13,6 +13,7 @@ class seokheePromise {
         this.PromiseStatus = "fulfilled";
         this.result = value;
         this.callback.forEach((func) => func(this.result));
+        this.finallyCallback.forEach((func) => func());
       }
     }.bind(this);
     this.reject = function (error) {
@@ -20,6 +21,7 @@ class seokheePromise {
         this.PromiseStatus = "rejected";
         this.result = error;
         this.errcallback.forEach((func) => func(this.result));
+        this.finallyCallback.forEach((func) => func());
       }
     }.bind(this);
 
@@ -56,7 +58,6 @@ class seokheePromise {
 
   finally(finallyCallback) {
     this.finallyCallback.push(finallyCallback);
-    finallyCallback();
     return this;
   }
 
@@ -92,7 +93,7 @@ class seokheePromise {
     return new seokheePromise((resolve) => {
       array.forEach((promise) => {
         promise.then((result) => {
-          resolve(result); // 첫 번째 성공한 Promise의 결과만 반환
+          resolve(result);
         });
       });
       //전부 거부시 reject되도록
@@ -109,56 +110,48 @@ const promise1 = new seokheePromise(function (resolve, reject) {
   } catch {
     reject("실패");
   }
-
-  // let a = 1;
-
-  // if (a == 1) {
-  //   resolve("promise1 성공");
-  // } else {
-  //   reject("failed");
-  // }
-});
-
-const promise2 = new seokheePromise((resolve, reject) => {
-  setTimeout(() => resolve("promise2 성공"), 1501);
-});
-
-const promise3 = new seokheePromise((resolve, reject) => {
-  setTimeout(() => resolve("promise3 성공"), 1500); // 실패하는 Promise
 });
 
 console.log(promise1); // 여기에서 pending이 나오도록
 
-// promise1
-//   .then((result) => {
-//     console.log(promise1, `\n`, "Promise 성공:", result);
+promise1
+  .then(function (result) {
+    console.log(promise1, "\n", "Promise 성공", result);
+  })
+  .catch(function (result) {
+    console.log(promise1, "\n", "Promise 실패:", result);
+  })
+  .finally(function () {
+    console.log(promise1, "\n", "finally work is doing");
+  });
+
+const promise2 = new seokheePromise((resolve, reject) => {
+  let a = 2;
+
+  if (a == 1) {
+    resolve("promise2 성공");
+  } else {
+    reject("failed");
+  }
+});
+const promise3 = new seokheePromise((resolve, reject) => {
+  setTimeout(() => resolve("promise3 성공"), 1500); // 실패하는 Promise
+});
+
+// seokheePromise
+//   .all([promise1, promise2, promise3])
+//   .then((results) => {
+//     console.log("모든 Promise 성공:", results);
 //   })
-//   .catch((result) => console.log(promise1, `\n`, "Promise 실패:", result))
-//   .then((result) => console.log(promise1, `\n`, "Promise 체인", result))
-//   .finally(() => console.log(promise1, `\n`, promise1.a));
+//   .catch((error) => {
+//     console.log("Promise 중 실패:", error);
+//   });
 
-seokheePromise
-  .all([promise1, promise2, promise3])
-  .then((results) => {
-    console.log("모든 Promise 성공:", results);
-  })
-  .catch((error) => {
-    console.log("Promise 중 실패:", error);
-  });
-
-seokheePromise
-  .any([promise1, promise2, promise3])
-  .then((result) => {
-    console.log("가장 먼저 성공한 Promise:", result);
-  })
-  .catch((error) => {
-    console.log("모든 Promise 실패:", error);
-  });
-/*
- * arrow function 없이 this 바인딩 해주기
- * then, catch 등을 체이닝 => Promise를 반환해야 함
- *
- * [개선사항]
- * 체이닝에 있어, status의 변경이 먼저인지 확인해보기 (현재는 pending으로 처리하기에 모든 것이 잡히는 중)
- * finally는 추후 따로 독자적인 힘
- */
+// seokheePromise
+//   .any([promise1, promise2, promise3])
+//   .then((result) => {
+//     console.log("가장 먼저 성공한 Promise:", result);
+//   })
+//   .catch((error) => {
+//     console.log("모든 Promise 실패:", error);
+//   });
